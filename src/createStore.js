@@ -1,5 +1,5 @@
-import isPlainObject from 'lodash/isPlainObject';
-import $$observable from 'symbol-observable';
+import isPlainObject from "lodash/isPlainObject";
+import $$observable from "symbol-observable";
 
 /**
  * These are private action types reserved by Redux.
@@ -8,7 +8,7 @@ import $$observable from 'symbol-observable';
  * Do not reference these action types directly in your code.
  */
 export const ActionTypes = {
-  INIT: '@@redux/INIT'
+  INIT: "@@redux/INIT"
 };
 
 /**
@@ -39,24 +39,29 @@ export const ActionTypes = {
 export default function createStore(reducer, preloadedState, enhancer) {
   // 第二个参数为function 第三个参数为undefined
   // 将enhancer赋值为第2个function，重置preloadedState为undefined
-  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+  if (typeof preloadedState === "function" && typeof enhancer === "undefined") {
     enhancer = preloadedState;
     preloadedState = undefined;
   }
 
   // enhancer有效值必须为 function || undefined
-  // 当为function时， 返回enhancer高阶函数的执行结果
-  if (typeof enhancer !== 'undefined') {
-    if (typeof enhancer !== 'function') {
-      throw new Error('Expected the enhancer to be a function.');
+  if (typeof enhancer !== "undefined") {
+    if (typeof enhancer !== "function") {
+      throw new Error("Expected the enhancer to be a function.");
     }
-
+    // 当为function时， 返回 `enhancer` 高阶函数的执行结果
+    // enhancer = applyMiddleware(middlewares) or
+    // enhancer = compose(applyMiddleware(middlewares), otherEnhancer)
+    // 说白了，如果enhancer存在，返回的就是一个参数为createStore的函数 记为A，
+    // 而该返回函数调用结果又返回
+    // enhancer(createStore）, createStore递归，调用一个参数为(reducer, preloadedState, enhancer)的函数(见applyMiddleware.js)
+    // 该函数返回 createStore暴露的对象和增强的dispatch {...store, dispatch}
     return enhancer(createStore)(reducer, preloadedState);
   }
 
   // reducer必须是函数
-  if (typeof reducer !== 'function') {
-    throw new Error('Expected the reducer to be a function.');
+  if (typeof reducer !== "function") {
+    throw new Error("Expected the reducer to be a function.");
   }
 
   let currentReducer = reducer;
@@ -111,8 +116,8 @@ export default function createStore(reducer, preloadedState, enhancer) {
    * @returns {Function} A function to remove this change listener.
    */
   function subscribe(listener) {
-    if (typeof listener !== 'function') {
-      throw new Error('Expected listener to be a function.');
+    if (typeof listener !== "function") {
+      throw new Error("Expected listener to be a function.");
     }
 
     let isSubscribed = true;
@@ -171,20 +176,20 @@ export default function createStore(reducer, preloadedState, enhancer) {
   function dispatch(action) {
     if (!isPlainObject(action)) {
       throw new Error(
-        'Actions must be plain objects. ' +
-          'Use custom middleware for async actions.'
+        "Actions must be plain objects. " +
+          "Use custom middleware for async actions."
       );
     }
 
-    if (typeof action.type === 'undefined') {
+    if (typeof action.type === "undefined") {
       throw new Error(
         'Actions may not have an undefined "type" property. ' +
-          'Have you misspelled a constant?'
+          "Have you misspelled a constant?"
       );
     }
 
     if (isDispatching) {
-      throw new Error('Reducers may not dispatch actions.');
+      throw new Error("Reducers may not dispatch actions.");
     }
 
     try {
@@ -215,8 +220,8 @@ export default function createStore(reducer, preloadedState, enhancer) {
    * @returns {void}
    */
   function replaceReducer(nextReducer) {
-    if (typeof nextReducer !== 'function') {
-      throw new Error('Expected the nextReducer to be a function.');
+    if (typeof nextReducer !== "function") {
+      throw new Error("Expected the nextReducer to be a function.");
     }
 
     // 改变currentReducer，分发init action，逐一执行nextlisteners
@@ -242,8 +247,8 @@ export default function createStore(reducer, preloadedState, enhancer) {
        * emission of values from the observable.
        */
       subscribe(observer) {
-        if (typeof observer !== 'object') {
-          throw new TypeError('Expected the observer to be an object.');
+        if (typeof observer !== "object") {
+          throw new TypeError("Expected the observer to be an object.");
         }
 
         function observeState() {

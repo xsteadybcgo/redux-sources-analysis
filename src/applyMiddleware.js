@@ -1,4 +1,4 @@
-import compose from './compose';
+import compose from "./compose";
 
 /**
  * Creates a store enhancer that applies middleware to the dispatch method
@@ -17,6 +17,11 @@ import compose from './compose';
  * @param {...Function} middlewares The middleware chain to be applied.
  * @returns {Function} A store enhancer applying the middleware.
  */
+// A createStore=> (createStore函数参数相同) => {
+// const store = createStore(reducer, preloadedState, enhancer);
+// 在createStore.js中被调用
+// 调用栈内递归调用createStore(), store最后返回， 中间代码用于增强dispatch
+//}
 export default function applyMiddleware(...middlewares) {
   return createStore => (reducer, preloadedState, enhancer) => {
     const store = createStore(reducer, preloadedState, enhancer);
@@ -28,11 +33,24 @@ export default function applyMiddleware(...middlewares) {
       dispatch: action => dispatch(action)
     };
     chain = middlewares.map(middleware => middleware(middlewareAPI));
+    // dispatch1 = middleware1(middlewareAPI)
+    // dispatch2 = middleware2(middlewareAPI)
+    // dispatch3 = middleware3(middlewareAPI)
     dispatch = compose(...chain)(store.dispatch);
-
+    // dispatch = dispatch1(dispatch2(dispatch3(store.dispatch)))
+    // dispatch3(store.dispatch) 返回newDispatch函数 action => store.dispatch(action)
+    // dispatch2(newDispatch)
+    // 洋葱一样一层层往外执行
     return {
       ...store,
       dispatch
     };
   };
 }
+// logger middleware ,中间件利用 store 形参，即middlewareAPI实参做一些处理
+// export default store => next => action => {
+//   console.log(store.getState());
+//   store.dispatch(action); // 原始的 dispatch
+//   next(action);
+//   console.log(store.getState());
+// }

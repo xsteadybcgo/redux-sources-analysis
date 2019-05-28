@@ -52,6 +52,10 @@ export default function applyMiddleware(...middlewares) {
 }
 // logger middleware ,中间件利用 store 形参，即middlewareAPI实参做一些处理
 // export default store => next => action => {
+//   next为store.dispatch原始值，
+//   不能在内部用store.dispatch, 该dispatch为middlewareAPI中的dispatch
+//   这是最新的dispatch值，当store.dispatch(action)调用时，又回到compose(...chain)(store.dispatch)(action)这个过程
+//   会造成代码死循环，非常危险
 //   console.log(store.getState());
 //   return next(action);
 // }

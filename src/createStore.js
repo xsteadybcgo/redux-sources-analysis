@@ -38,7 +38,7 @@ export const ActionTypes = {
  */
 export default function createStore(reducer, preloadedState, enhancer) {
   // 第二个参数为function 第三个参数为undefined
-  // 将enhancer赋值为第2个function，重置preloadedState为undefined
+  // 将enhancer赋值为第2个function，赋值preloadedState为undefined
   if (typeof preloadedState === "function" && typeof enhancer === "undefined") {
     enhancer = preloadedState;
     preloadedState = undefined;

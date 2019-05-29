@@ -1,11 +1,11 @@
-import { ActionTypes } from './createStore';
-import isPlainObject from 'lodash/isPlainObject';
-import warning from './utils/warning';
+import { ActionTypes } from "./createStore";
+import isPlainObject from "lodash/isPlainObject";
+import warning from "./utils/warning";
 
 function getUndefinedStateErrorMessage(key, action) {
   const actionType = action && action.type;
   const actionName =
-    (actionType && `"${actionType.toString()}"`) || 'an action';
+    (actionType && `"${actionType.toString()}"`) || "an action";
 
   return (
     `Given action ${actionName}, reducer "${key}" returned undefined. ` +
@@ -23,13 +23,13 @@ function getUnexpectedStateShapeWarningMessage(
   const reducerKeys = Object.keys(reducers);
   const argumentName =
     action && action.type === ActionTypes.INIT
-      ? 'preloadedState argument passed to createStore'
-      : 'previous state received by the reducer';
+      ? "preloadedState argument passed to createStore"
+      : "previous state received by the reducer";
 
   if (reducerKeys.length === 0) {
     return (
-      'Store does not have a valid reducer. Make sure the argument passed ' +
-      'to combineReducers is an object whose values are reducers.'
+      "Store does not have a valid reducer. Make sure the argument passed " +
+      "to combineReducers is an object whose values are reducers."
     );
   }
 
@@ -52,7 +52,7 @@ function getUnexpectedStateShapeWarningMessage(
 
   if (unexpectedKeys.length > 0) {
     return (
-      `Unexpected ${unexpectedKeys.length > 1 ? 'keys' : 'key'} ` +
+      `Unexpected ${unexpectedKeys.length > 1 ? "keys" : "key"} ` +
       `"${unexpectedKeys.join('", "')}" found in ${argumentName}. ` +
       `Expected to find one of the known reducer keys instead: ` +
       `"${reducerKeys.join('", "')}". Unexpected keys will be ignored.`
@@ -68,7 +68,7 @@ function assertReducerShape(reducers) {
   Object.keys(reducers).forEach(key => {
     const reducer = reducers[key];
     const initialState = reducer(undefined, { type: ActionTypes.INIT });
-    if (typeof initialState === 'undefined') {
+    if (typeof initialState === "undefined") {
       throw new Error(
         `Reducer "${key}" returned undefined during initialization. ` +
           `If the state passed to the reducer is undefined, you must ` +
@@ -79,13 +79,13 @@ function assertReducerShape(reducers) {
     }
 
     const type =
-      '@@redux/PROBE_UNKNOWN_ACTION_' +
+      "@@redux/PROBE_UNKNOWN_ACTION_" +
       Math.random()
         .toString(36)
         .substring(7)
-        .split('')
-        .join('.');
-    if (typeof reducer(undefined, { type }) === 'undefined') {
+        .split("")
+        .join(".");
+    if (typeof reducer(undefined, { type }) === "undefined") {
       throw new Error(
         `Reducer "${key}" returned undefined when probed with a random type. ` +
           `Don't try to handle ${
@@ -118,24 +118,25 @@ function assertReducerShape(reducers) {
  */
 export default function combineReducers(reducers) {
   const reducerKeys = Object.keys(reducers);
+  // reducers 深拷贝reducers中value为function的
   const finalReducers = {};
   for (let i = 0; i < reducerKeys.length; i++) {
     const key = reducerKeys[i];
 
-    if (process.env.NODE_ENV !== 'production') {
-      if (typeof reducers[key] === 'undefined') {
+    if (process.env.NODE_ENV !== "production") {
+      if (typeof reducers[key] === "undefined") {
         warning(`No reducer provided for key "${key}"`);
       }
     }
 
-    if (typeof reducers[key] === 'function') {
+    if (typeof reducers[key] === "function") {
       finalReducers[key] = reducers[key];
     }
   }
   const finalReducerKeys = Object.keys(finalReducers);
 
   let unexpectedKeyCache;
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     unexpectedKeyCache = {};
   }
 
@@ -152,7 +153,7 @@ export default function combineReducers(reducers) {
       throw shapeAssertionError;
     }
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       const warningMessage = getUnexpectedStateShapeWarningMessage(
         state,
         finalReducers,
@@ -164,20 +165,25 @@ export default function combineReducers(reducers) {
       }
     }
 
-    // a lock
+    // a change flag
     let hasChanged = false;
+    //  ====================
+    //  dispatch执行的关键代码
     // 执行每一个reducers， 改变nextState并将其作为返回
     const nextState = {};
     for (let i = 0; i < finalReducerKeys.length; i++) {
       const key = finalReducerKeys[i];
       const reducer = finalReducers[key];
       const previousStateForKey = state[key];
+
       const nextStateForKey = reducer(previousStateForKey, action);
-      if (typeof nextStateForKey === 'undefined') {
+      if (typeof nextStateForKey === "undefined") {
         const errorMessage = getUndefinedStateErrorMessage(key, action);
         throw new Error(errorMessage);
       }
       nextState[key] = nextStateForKey;
+      // end
+      // =============
       hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
     }
     return hasChanged ? nextState : state;

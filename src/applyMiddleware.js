@@ -4,7 +4,7 @@ import compose from "./compose";
  * Creates a store enhancer that applies middleware to the dispatch method
  * of the Redux store. This is handy for a variety of tasks, such as expressing
  * asynchronous actions in a concise manner, or logging every action payload.
- * 创建富功能store，于dispatch上应用dispatch， 用于 使用更简明的方式表示异步actions，打印log
+ * 增强dispatch功能， 这样就可以使用更简明的方式dispatch type为function的action，打印log
  * See `redux-thunk` package as an example of the Redux middleware.
  * middleware为异步的，applyMiddleware应该在compose过程中第一个执行
  * 即compose(applyMiddleware())

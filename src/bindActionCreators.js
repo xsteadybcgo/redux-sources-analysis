@@ -47,7 +47,7 @@ export default function bindActionCreators(actionCreators, dispatch) {
     if (typeof actionCreator === 'function') {
       // 返回一个用dispatch包装了一层的actionCreator
       // 当调用boundActionCreators.key()
-      // 直接执行redux中的dispathch(actionCreator())
+      // 直接执行redux中的dispatch(actionCreator())
       boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
     }
   }
